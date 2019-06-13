@@ -1,7 +1,7 @@
 import random, time, datetime, re
 
 data = {"name" : "Virtual buddy", "creationdate" : datetime.datetime(2019,5,6,8,15)}
-responses = {"hey" :["Hey","Hi","Hello"],"hi" :["Hey","Hi","Hello"],"hello" : ["Hey","Hi","Hello"],"what is your name?":["My name is %s"%data["name"],"People call me %s"%data["name"]],
+responses = {"hey" :["Hey","Hi","Hello"],"hi" :["Hey","Hi","Hello"],"hello" : ["Hey","Hi","Hello"],"what is your name":["My name is %s"%data["name"],"People call me %s"%data["name"]],
              "how late is it":["It is now %s"%datetime.datetime.now().strftime("%H:%M:%S"),"The time is %s"%datetime.datetime.now().strftime("%H:%M:%S")],
              "how old are you":["I am %s old"%(datetime.datetime.now()-data["creationdate"]),"Do you want to know that?"],"how are you" : ["I'm fine","I am fine","I am feeling well", "I am not feeling so well"],
              "i am fine":["That's nice to hear","Why are you feeling fine?","Can you describe that?","Keep feeling fine!"]}
@@ -9,9 +9,9 @@ responses = {"hey" :["Hey","Hi","Hello"],"hi" :["Hey","Hi","Hello"],"hello" : ["
 statementsandquestions = ["Tell me more!", "That sounds interesting", "Wow!","How do you feel?",
                           "What is your name"]
 
-# "i feel (.*) because (.*)":["You feel %s because %s"],
-statementpatterns = {"my name is (.*)" : ["your name is %s"], "i feel (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?"],
-            "i am feeling (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?"]}
+statementpatterns = {"my name is (.*)" : ["your name is %s"], "i feel (.*) because (.*)":["You feel %s because %s"],"i feel (.*)":["Why do you feel %s?",
+                                                                                                                                   "How long have you felt %s?","You feel %s, why?, Why do you feel %s"],
+                    "i am feeling (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?"]}
 
 questionpatterns = {"why do you feel (.*)\?":["I feel %s because it's raining", "I feel %s because it's sunny", "I feel %s because it's cloudy", "I feel %s because I am listening"],
                     "why do you feel (happy)\?":["I feel %s because I am programming","I feel %s because I like what I am doing", "I feel %s because the weather is good",
@@ -34,6 +34,8 @@ def swap_pronouns(phrase):
     return phrase
 
 def respond(message):
+    if message.endswith("."):
+        message = message[:-1]
     if message.lower() in responses:
         return random.choice(responses[message.lower()])
 
@@ -49,10 +51,10 @@ def respond(message):
         for pattern in statementpatterns:
             phrase = re.search(pattern, message.lower())
             if phrase:
-                # try:
-                #     if phrase.group(2):
-                #         return (random.choice(questionpatterns[pattern])% (swap_pronouns(phrase.group(1).lower()), swap_pronouns(phrase.group(2).lower())))
-                # except:
+                try:
+                    if phrase.group(2):
+                        return (random.choice(statementpatterns[pattern])% (swap_pronouns(phrase.group(1).lower()), swap_pronouns(phrase.group(2).lower())))
+                except:
                     return (random.choice(statementpatterns[pattern]) % swap_pronouns(phrase.group(1)))
 
         if swap_pronouns(message.lower()) == message.lower():
