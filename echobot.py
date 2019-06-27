@@ -1,16 +1,16 @@
 import random, time, datetime, re
 
-data = {"name" : "Virtual buddy", "creationdate" : datetime.datetime(2019,5,6,8,15)}
+data = {"name" : "Virtual buddy", "creationdate" : datetime.datetime(2019,5,6,8,15), "username":"Unkown person"}
 responses = {"hey" :["Hey","Hi","Hello"],"hi" :["Hey","Hi","Hello"],"hello" : ["Hey","Hi","Hello"],"what is your name":["My name is %s"%data["name"],"People call me %s"%data["name"]],
              "how late is it":["It is now %s"%datetime.datetime.now().strftime("%H:%M:%S"),"The time is %s"%datetime.datetime.now().strftime("%H:%M:%S")],
              "how old are you":["I am %s old"%(datetime.datetime.now()-data["creationdate"]),"Do you want to know that?"],"how are you" : ["I'm fine","I am fine","I am feeling well", "I am not feeling so well"],
-             "i am fine":["That's nice to hear","Why are you feeling fine?","Can you describe that?","Keep feeling fine!"]}
+             "i am fine":["That's nice to hear","Why are you feeling fine?","Can you describe that?","Keep feeling fine!"],"hi virtual buddy":["Hi {}".format(data["username"])]}
 
 statementsandquestions = ["Tell me more!", "That sounds interesting", "Wow!","How do you feel?",
                           "What is your name"]
 
-statementpatterns = {"my name is (.*)" : ["your name is %s"], "i feel (.*) because (.*)":["You feel %s because %s"],"i feel (.*)":["Why do you feel %s?",
-                                                                                                                                   "How long have you felt %s?","You feel %s, why?, Why do you feel %s"],
+statementpatterns = {"my name is (.*)" : ["your name is %s"], "i feel (.*) because (.*)":["You feel %(feeling)s because %(reason)s", "Why is it that %(reason)s makes you %(feeling)s?"],
+                     "i feel (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?, Why do you feel %s"],
                     "i am feeling (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?"]}
 
 questionpatterns = {"why do you feel (.*)\?":["I feel %s because it's raining", "I feel %s because it's sunny", "I feel %s because it's cloudy", "I feel %s because I am listening"],
@@ -21,16 +21,16 @@ questionpatterns = {"why do you feel (.*)\?":["I feel %s because it's raining", 
                     "do you remember (.*)\?": ["How could I forget %s", "Of course I remember %s"]}
 
 def swap_pronouns(phrase):
-    if phrase == "me":
-        phrase = "you"
-    if "i " in phrase:
-        phrase = re.sub("i ","you ", phrase)
-    if "my" in phrase:
-        phrase = re.sub("my ","your ", phrase)
-    if "am" in phrase:
-        phrase = re.sub("am ","are ", phrase)
-    if "me " in phrase:
-        phrase = re.sub("me ","you ", phrase)
+    phrase = " " + phrase + " "
+
+    if " i " in phrase or "you ":
+        phrase = re.sub(" i ", " you ", phrase)
+    if " my" in phrase:
+        phrase = re.sub(" my ", " your ", phrase)
+    if " am" in phrase:
+        phrase = re.sub(" am ", " are ", phrase)
+    if " me " in phrase:
+        phrase = re.sub(" me ", " you ", phrase)
     return phrase
 
 def respond(message):
@@ -53,9 +53,13 @@ def respond(message):
             if phrase:
                 try:
                     if phrase.group(2):
-                        return (random.choice(statementpatterns[pattern])% (swap_pronouns(phrase.group(1).lower()), swap_pronouns(phrase.group(2).lower())))
+                        return random.choice(statementpatterns[pattern]) %{'feeling':swap_pronouns(phrase.group(1).lower()), 'reason':swap_pronouns(phrase.group(2).lower())}
+
                 except:
-                    return (random.choice(statementpatterns[pattern]) % swap_pronouns(phrase.group(1)))
+                    try:
+                        return (random.choice(statementpatterns[pattern]) % swap_pronouns(phrase.group(1)))
+                    except:
+                        pass
 
         if swap_pronouns(message.lower()) == message.lower():
             return random.choice(statementsandquestions)
