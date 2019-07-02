@@ -14,12 +14,12 @@ statementpatterns = {"my name is (.*)" : ["your name is %s"], "i feel (.*) becau
                      "i feel (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?, Why do you feel %s"],
                     "i am feeling (.*)":["Why do you feel %s?","How long have you felt %s?","You feel %s, why?"]}
 
-questionpatterns = {"why do you feel (.*)\?":["I feel %s because it's raining", "I feel %s because it's sunny", "I feel %s because it's cloudy", "I feel %s because I am listening"],
-                    "why do you feel (happy)\?":["I feel %s because I am programming","I feel %s because I like what I am doing", "I feel %s because the weather is good",
+questionpatterns = {"why do you feel (.*)":["I feel %s because it's raining", "I feel %s because it's sunny", "I feel %s because it's cloudy", "I feel %s because I am listening"],
+                    "why do you feel (happy)":["I feel %s because I am programming","I feel %s because I like what I am doing", "I feel %s because the weather is good",
                                                    "I feel %s because I am helping someone"],
-                    "why do you feel (bad)\?":["I feel %s because what I am doing is boring","I feel %s because life is bad", "I feel %s because I do not like what I am doing",
+                    "why do you feel (bad)":["I feel %s because what I am doing is boring","I feel %s because life is bad", "I feel %s because I do not like what I am doing",
                                                "I feel %s because the water is bad",],
-                    "do you remember (.*)\?": ["How could I forget %s", "Of course I remember %s"]}
+                    "do you remember (.*)": ["How could I forget %s", "Of course I remember %s"]}
 
 def swap_pronouns(phrase):
     phrase = " " + phrase + " "
@@ -55,8 +55,12 @@ def respond(message):
             return(random.choice(["Your name is %s"%data["username"]]))
         else:
             return random.choice(["I don't know your name, can you tell me it?", "Can you tell me your name?"])
+    for pattern in questionpatterns:
+        phrase = re.search(pattern, message.lower())
+        if phrase:
+            return (random.choice(questionpatterns[pattern]) % swap_pronouns(phrase.group(1).lower()))
     if message.endswith("?"):
-        for pattern in questionpatterns:
+        for pattern in questionpatterns[:-1]:
             phrase = re.search(pattern, message.lower())
             if phrase:
                 return (random.choice(questionpatterns[pattern])% swap_pronouns(phrase.group(1).lower()))
