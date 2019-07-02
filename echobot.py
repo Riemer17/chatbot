@@ -1,10 +1,11 @@
 import random, time, datetime, re
 
-data = {"name" : "Virtual buddy", "creationdate" : datetime.datetime(2019,5,6,8,15), "username":"Unkown person"}
+data = {"name" : "Virtual buddy", "creationdate" : datetime.datetime(2019,5,6,8,15), "username":"Unknown person"}
 responses = {"hey" :["Hey","Hi","Hello"],"hi" :["Hey","Hi","Hello"],"hello" : ["Hey","Hi","Hello"],"what is your name":["My name is %s"%data["name"],"People call me %s"%data["name"]],
              "how late is it":["It is now %s"%datetime.datetime.now().strftime("%H:%M:%S"),"The time is %s"%datetime.datetime.now().strftime("%H:%M:%S")],
-             "how old are you":["I am %s old"%(datetime.datetime.now()-data["creationdate"]),"Do you want to know that?"],"how are you" : ["I'm fine","I am fine","I am feeling well", "I am not feeling so well"],
-             "i am fine":["That's nice to hear","Why are you feeling fine?","Can you describe that?","Keep feeling fine!"],"hi virtual buddy":["Hi {}".format(data["username"])]}
+             "how old are you":["I am %s old"%(datetime.datetime.now()-data["creationdate"])],"how are you" : ["I'm fine","I am fine","I am feeling well", "I am not feeling so well"],
+             "i am fine":["That's nice to hear","Why are you feeling fine?","Can you describe that?","Keep feeling fine!"],"hi virtual buddy":["Hi %s"%data['username']]
+            }
 
 statementsandquestions = ["Tell me more!", "That sounds interesting", "Wow!","How do you feel?",
                           "What is your name"]
@@ -38,7 +39,15 @@ def respond(message):
         message = message[:-1]
     if message.lower() in responses:
         return random.choice(responses[message.lower()])
-
+    if re.search("my name is (.*)", message.lower()) != None:
+        data["username"] = re.search("my name is (.*)", message.lower()).group(1).capitalize()
+        responses["hi virtual buddy"] = ["Hi %s" % data['username']]
+        return ("Your name is %s" %data["username"])
+    if message.lower() == "what is my name" or "what is my name?":
+        if data["username"] != "Unknown person":
+            return(random.choice(["Your name is %s"%data["username"]]))
+        else:
+            return random.choice(["I don't know your name, can you tell me it?", "Can you tell me your name?"])
     if message.endswith("?"):
         for pattern in questionpatterns:
             phrase = re.search(pattern, message.lower())
