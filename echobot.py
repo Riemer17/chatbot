@@ -39,11 +39,11 @@ def respond(message):
         message = message[:-1]
     if message.lower() in responses:
         return random.choice(responses[message.lower()])
-    if re.search("my name is (.*)", message.lower()) != None:
+    if re.search("my name is (.*)", message.lower()):
         data["username"] = re.search("my name is (.*)", message.lower()).group(1).capitalize()
         responses["hi virtual buddy"] = ["Hi %s" % data['username']]
         return ("Your name is %s" %data["username"])
-    if message.lower() == "what is my name" or "what is my name?":
+    if message.lower() == "what is my name" or message.lower()=="what is my name?":
         if data["username"] != "Unknown person":
             return(random.choice(["Your name is %s"%data["username"]]))
         else:
@@ -74,10 +74,15 @@ def respond(message):
             return random.choice(statementsandquestions)
         else:
             return swap_pronouns(message.lower()).capitalize()
+def update():
+    # updating time values in responses dictionary
+    responses["how late is it"] = ["It is now %s" % datetime.datetime.now().strftime("%H:%M:%S"),"The time is %s" % datetime.datetime.now().strftime("%H:%M:%S")]
+    responses["how old are you"] = ["I am %s old"%(datetime.datetime.now()-data["creationdate"])]
 
 def send_message(message):
     print("You: %s" %message)
     time.sleep(random.uniform(0.5,1.5))
+    update()
     respondmessage = respond(message)
     print("Echobot: %s" %respondmessage)
 
