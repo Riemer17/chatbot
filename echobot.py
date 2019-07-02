@@ -24,15 +24,22 @@ questionpatterns = {"why do you feel (.*)\?":["I feel %s because it's raining", 
 def swap_pronouns(phrase):
     phrase = " " + phrase + " "
 
-    if " i " in phrase or "you ":
-        phrase = re.sub(" i ", " you ", phrase)
+    if " i " in phrase:
+        phrase = re.sub(" i ", " |you ", phrase)
+    if " you " in phrase:
+        phrase = re.sub(" you ", " me ", phrase)
     if " my" in phrase:
-        phrase = re.sub(" my ", " your ", phrase)
+        phrase = re.sub(" my ", " |your ", phrase)
+    if " your" in phrase:
+        phrase = re.sub(" your ", " my ", phrase)
     if " am" in phrase:
-        phrase = re.sub(" am ", " are ", phrase)
+        phrase = re.sub(" am ", " |are ", phrase)
+    if " are" in phrase:
+        phrase = re.sub(" are ", " am ", phrase)
     if " me " in phrase:
-        phrase = re.sub(" me ", " you ", phrase)
-    return phrase
+        phrase = re.sub(" me ", " |you ", phrase)
+    phrase = phrase.replace('|','')
+    return phrase[1:-1]
 
 def respond(message):
     if message.endswith("."):
