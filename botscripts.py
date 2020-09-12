@@ -5,10 +5,11 @@ import random, time, datetime, re
 
 def login():
     username = input("What is your username?")
+    ds.dbread('username', 'gebruiker', "username='%s'" % username)
     if ds.dbread('username', 'gebruiker', "username='%s'" %username):
         print('Hey %s' %username)
         password = input('Password:')
-        if ss.checkpw(password, ds.dbread('password', 'gebruiker',"username='%s'"%username)[0]['password']):
+        if ss.checkpw(password, ds.dbread('password', 'gebruiker',"username='%s'"%username)[0][0]):
             return username
         else:
             return False
@@ -122,22 +123,22 @@ def stopchatbot():
         password = input("What password do you want to use for the encryption? \n Remember that it is very important to remember this password, because we do not store it and without this password you cannot encrypt your data. ")
         key = ss.genkey(password)
         encryptedchatsession = ss.encrypt(key, bd.chatsession)
-        userid = ds.dbread("id","gebruiker","username='%s'"%bd.data['username'])[0]['id']
+        userid = ds.dbread("id","gebruiker","username='%s'"%bd.data['username'])[0][0]
         ds.dbinsert("chatsession","(userid, text, timestamp)", "(%s, '%s','%s')"%(userid, encryptedchatsession,datetime.datetime.now()))
         exit()
 
 def retrievechatsession():
-    userid = ds.dbread("id","gebruiker","username='%s'"%bd.data['username'])[0]['id']
+    userid = ds.dbread("id","gebruiker","username='%s'"%bd.data['username'])[0][0]
     timestamps = ds.dbread("id, timestamp", "chatsession", "userid='%s'"%userid)
     for i in timestamps:
-        print("Session %s: Ending time: %s"%(i['id'],i['timestamp'].strftime("%d %B %Y, %H:%M:%S")))
+        print("Session %s: Ending time: %s" % (i[0], i[1]))
     sessionid = input("Which session do you want to retrieve?")
     encryptedchatsession = ds.dbread("text, timestamp","chatsession","id=%s"%sessionid)
     if encryptedchatsession:
         password = input("What is your encryption password?")
         key = ss.genkey(password)
-        decrypted = ss.decrypt(key, encryptedchatsession[0]['text'])
-        print("Chatsession %s on %s"%(sessionid, encryptedchatsession[0]['timestamp'].strftime("%d %B %Y, %H:%M:%S")))
+        decrypted = ss.decrypt(key, encryptedchatsession[0][0])
+        print("Chatsession %s on %s"%(sessionid, encryptedchatsession[0][1]))
         print(decrypted)
         exit()
     else:
